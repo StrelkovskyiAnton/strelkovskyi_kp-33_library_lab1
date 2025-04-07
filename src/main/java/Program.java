@@ -159,38 +159,39 @@ public class Program {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Library library = new Library();
+        String fileName;
         int choice;
         do {
-            System.out.println("1. Додати книгу\n2. Додати читача\n3. Видати книгу\n4. Повернути книгу\n5. Показати доступні книги\n6. Зберегти бібліотеку\n7. Завантажити бібліотеку\n8. Вийти");
+            System.out.println("1. Add a book\n2. Add a reader\n3. Lend a book\n4. Return a book\n5. Show available books\n6. Save library\n7. Load library\n8. Exit");
             choice = scanner.nextInt();
             scanner.nextLine();
             
             switch (choice) {
                 case 1:
-                    System.out.print("Введіть назву книги: ");
+                    System.out.print("Enter book title: ");
                     String title = scanner.nextLine();
-                    System.out.print("Введіть автора: ");
+                    System.out.print("Enter author: ");
                     String author = scanner.nextLine();
                     library.addBook(new Book(title, author));
                     break;
                 case 2:
-                    System.out.print("Введіть ім'я читача: ");
+                    System.out.print("Enter reader's name: ");
                     String name = scanner.nextLine();
                     library.addReader(new Reader(name));
                     break;
                 case 3:
-                    System.out.print("Введіть ім'я читача: ");
+                    System.out.print("Enter reader's name: ");
                     name = scanner.nextLine();
-                    System.out.print("Введіть назву книги: ");
+                    System.out.print("Enter book title: ");
                     title = scanner.nextLine();
                     library.getReaders().stream().filter(r -> r.getName().equals(name)).findFirst()
                             .ifPresent(reader -> library.availableBooks().stream().filter(b -> b.getTitle().equals(title)).findFirst()
                                     .ifPresent(book -> library.lendBook(reader, book)));
                     break;
                 case 4:
-                    System.out.print("Введіть ім'я читача: ");
+                    System.out.print("Enter reader's name: ");
                     name = scanner.nextLine();
-                    System.out.print("Введіть назву книги: ");
+                    System.out.print("Enter book title: ");
                     title = scanner.nextLine();
                     library.getReaders().stream().filter(r -> r.getName().equals(name)).findFirst()
                             .ifPresent(reader -> reader.getBorrowedBooks().stream().filter(b -> b.getTitle().equals(title)).findFirst()
@@ -200,19 +201,23 @@ public class Program {
                     library.availableBooks().forEach(book -> System.out.println(book.getTitle()));
                     break;
                 case 6:
-                    System.out.print("Щоб відсторувати книжки перед експортом, введіть 1: ");
+                    System.out.print("Enter file name: ");
+                    fileName = scanner.nextLine();
+                    System.out.print("To sort books before export, enter 1: ");
                     String sortBooks = scanner.nextLine();
-                    System.out.print("Щоб відсторувати читачів перед експортом, введіть 1: ");
+                    System.out.print("To sort readers before export, enter 1: ");
                     String sortReaders = scanner.nextLine();
                     try {
-                        library.exportData("library.json", sortBooks == "1", sortReaders == "1");
+                        library.exportData(fileName, sortBooks == "1", sortReaders == "1");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     break;
                 case 7:
+                    System.out.print("Enter file name: ");
+                    fileName = scanner.nextLine();
                     try {
-                        library.importData("library.json");
+                        library.importData(fileName);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
