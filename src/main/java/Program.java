@@ -128,10 +128,21 @@ class Library {
         return new ArrayList<>(readers);
     }
 
-    public void exportData(String filename) throws IOException {
+    public void exportData(String filename, boolean sortBooks, boolean sortReaders) throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        Set<Book> sortedBooks = sortBooks ? new TreeSet<>(Comparator.comparing(Book::getTitle)) : books;
+        sortedBooks.addAll(books);
+
+        Set<Reader> sortedReaders = sortReaders ? new TreeSet<>(Comparator.comparing(Reader::getName)) : readers;
+        sortedReaders.addAll(readers);
+
+        Library exportLibrary = new Library();
+        exportLibrary.books = sortedBooks;
+        exportLibrary.readers = sortedReaders;
+
         try (FileWriter writer = new FileWriter(filename)) {
-            gson.toJson(this, writer);
+            gson.toJson(exportLibrary, writer);
         }
     }
 
@@ -189,8 +200,12 @@ public class Program {
                     library.availableBooks().forEach(book -> System.out.println(book.getTitle()));
                     break;
                 case 6:
+                    System.out.print("Щоб відсторувати книжки перед експортом, введіть 1: ");
+                    String sortBooks = scanner.nextLine();
+                    System.out.print("Щоб відсторувати читачів перед експортом, введіть 1: ");
+                    String sortReaders = scanner.nextLine();
                     try {
-                        library.exportData("library.json");
+                        library.exportData("library.json", sortBooks == "1", sortReaders == "1");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

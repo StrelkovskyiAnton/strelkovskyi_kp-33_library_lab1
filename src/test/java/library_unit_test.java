@@ -1,7 +1,15 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 class library_unit_test {
@@ -56,12 +64,34 @@ class library_unit_test {
     @Test
     void testExportAndImportLibrary() throws IOException {
         String filename = "test_library.json";
-        library.exportData(filename);
+        library.exportData(filename, false, false);
         Library importedLibrary = new Library();
         importedLibrary.importData(filename);
         List<Book> importedBooks = importedLibrary.availableBooks();
         assertEquals(1, importedBooks.size());
         assertEquals("Effective Java", importedBooks.get(0).getTitle());
+    }
+
+    @Test
+    public void testExportSortedData() throws IOException {
+        Library newLibrary = new Library();
+        newLibrary.addBook(new Book("Z Book", "Author A"));
+        newLibrary.addBook(new Book("A Book", "Author Z"));
+        newLibrary.addReader(new Reader("Zlata Petrenko"));
+        newLibrary.addReader(new Reader("Anton Antonenko"));
+        String testFile = "test_export_sorted.json";
+        newLibrary.exportData(testFile, true, true);
+        String json = new String(Files.readAllBytes(Paths.get(testFile)), StandardCharsets.UTF_8);
+        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
+
+        JsonArray books = jsonObject.getAsJsonArray("books");
+        JsonArray readers = jsonObject.getAsJsonArray("readers");
+
+        assertEquals("A Book", books.get(0).getAsJsonObject().get("title").getAsString());
+        assertEquals("Z Book", books.get(1).getAsJsonObject().get("title").getAsString());
+
+        assertEquals("Anton Antonenko", readers.get(0).getAsJsonObject().get("name").getAsString());
+        assertEquals("Zlata Petrenko", readers.get(1).getAsJsonObject().get("name").getAsString());
     }
 
     @Test
